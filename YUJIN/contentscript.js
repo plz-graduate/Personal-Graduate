@@ -151,3 +151,53 @@ fetch(chrome.runtime.getURL('data/informationConvergence.json'))
     displayRemainingCredits(data, completedCourses, remainingCredits); // 남은 학점 정보 표시
   })
   .catch(error => console.error('Error loading JSON:', error));
+
+
+  // 교양 이수 현황 업데이트 함수
+function updateGyoyangIsuTable() {
+  // HTML 페이지 가져오기
+  fetch('https://klas.kw.ac.kr/std/cps/inqire/GyoyangIsuStdPage.do')
+      .then(response => response.text())
+      .then(htmlString => {
+          // JSON 데이터 가져오기
+          return fetch('/std/cps/inqire/GyoyangIsuInfo.do', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({})
+          })
+          .then(response => response.json())
+          .then(jsonData => {
+              const parser = new DOMParser();
+              const doc = parser.parseFromString(htmlString, 'text/html');
+              const table = doc.querySelector('#appModule > div > table:nth-child(3)');
+              const html = `<br><br> ` + table.outerHTML;
+
+              // JSON 데이터를 사용하여 HTML 요소 대체
+              let updatedHtml = html
+                  .replace('{{sugang.aa8128}}', jsonData.aa8128)
+                  .replace('{{sugang.aa3362}}', jsonData.aa3362)
+                  .replace('{{sugang.aa76}}', jsonData.aa76)
+                  .replace('{{sugang.aa64}}', jsonData.aa64)
+                  .replace('{{sugang.aa63}}', jsonData.aa63)
+                  .replace('{{sugang.aa65}}', jsonData.aa65)
+                  .replace('{{sugang.aa66}}', jsonData.aa66)
+                  .replace('{{sugang.aa67}}', jsonData.aa67)
+                  .replace('{{sugang.aa68}}', jsonData.aa68)
+                  .replace('{{sugang.aa7881}}', jsonData.aa7881)
+                  // 필요한 만큼 추가적인 데이터 필드 반복
+                  .replace('{{totHakjum}}', Object.values(jsonData).reduce((a, b) => a + b, 0));
+
+              // 삽입 위치 선정 및 HTML 삽입
+              const insertLocation = document.querySelector('.tablegw');
+              if (insertLocation && updatedHtml) {
+                  insertLocation.insertAdjacentHTML('afterend', updatedHtml);
+              }
+          });
+      })
+      .catch(error => console.error('Fetching error:', error));
+}
+
+// 페이지 로드가 완료되면 교양 이수 현황 업데이트 함수 실행
+window.addEventListener('load', updateGyoyangIsuTable);
