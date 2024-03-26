@@ -4,7 +4,7 @@ function createAndInsertTable(data, completedCourses) {
   const table = document.createElement('table');
   table.style.width = '100%';
   table.style.marginTop = '20px';
-  table.style.border = ''
+  table.style.border = '1px solid grey';
 
   // 테이블 헤더 생성
   const thead = document.createElement('thead');
@@ -83,7 +83,7 @@ function extractCompletedCourses() {
 }
 
 
-// 취득학점 정보 추출 및 남은 학점 계산
+// 취득학점 정보 추출 및 남은 학점 계산 함수
 function calculateRemainingCredits() {
   // 취득학점 정보가 있는 테이블 선택 (두 번째 '.tablegw')
   const creditInfoTable = document.querySelectorAll('.tablegw')[1];
@@ -92,10 +92,13 @@ function calculateRemainingCredits() {
     return { major: 0, nonMajor: 0 }; // 오류 시 기본 값 반환
   }
 
-  // 취득학점 정보 추출
   const rows = creditInfoTable.querySelectorAll('tbody tr')[0].cells; // 첫 번째 행의 셀들 선택
   const majorCredits = parseInt(rows[8].textContent, 10) || 0; // 전공 취득학점
   const nonMajorCredits = parseInt(rows[9].textContent, 10) || 0; // 교양 취득학점
+  const otherCredits = parseInt(rows[10].textContent, 10) || 0; // 기타 취득학점
+  
+  // 교양과 기타 학점을 합칩니다.
+  const combinedNonMajorCredits = nonMajorCredits + otherCredits;
 
   // 졸업 요건 학점 (전공 60학점 이상, 전공 제외 73학점 이상 필요)
   const graduationRequirements = { major: 60, nonMajor: 73 };
@@ -103,11 +106,12 @@ function calculateRemainingCredits() {
   // 남은 학점 계산
   const remainingCredits = {
     major: Math.max(0, graduationRequirements.major - majorCredits),
-    nonMajor: Math.max(0, graduationRequirements.nonMajor - nonMajorCredits)
+    nonMajor: Math.max(0, graduationRequirements.nonMajor - combinedNonMajorCredits)
   };
 
   return remainingCredits; // 계산된 남은 학점 객체 반환
 }
+
 
 
 
