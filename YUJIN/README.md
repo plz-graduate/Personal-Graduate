@@ -10,5 +10,6 @@
 
 
 <img width="199" alt="image" src="https://github.com/plz-graduate/Personal-Graduate/assets/136612437/668bd983-77b8-4f6c-aeed-b4abc8903352">
+
 3. 취득학점을 기준으로 졸업까지 남은 학점 알려주기
 -> 두번째 tablegw클래스의 취득학점을 추출하여 졸업까지 몇 학점을 더 들어야되는지 띄움
