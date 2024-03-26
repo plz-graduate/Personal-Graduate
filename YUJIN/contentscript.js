@@ -4,6 +4,7 @@ function createAndInsertTable(data, completedCourses) {
   const table = document.createElement('table');
   table.style.width = '100%';
   table.style.marginTop = '20px';
+  table.style.border = ''
 
   // 테이블 헤더 생성
   const thead = document.createElement('thead');
