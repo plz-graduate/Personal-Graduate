@@ -4,7 +4,8 @@ function createAndInsertTable(data, completedCourses) {
   const table = document.createElement('table');
   table.style.width = '100%';
   table.style.marginTop = '20px';
-  table.style.border = '1px solid grey';
+  table.style.border = '1px solid #ddd';
+  
 
   // 테이블 헤더 생성
   const thead = document.createElement('thead');
@@ -20,6 +21,7 @@ function createAndInsertTable(data, completedCourses) {
     const headerCell = document.createElement('th');
     headerCell.textContent = headerText;
     headerCell.style.textAlign = 'center';
+    headerCell.style.backgroundColor= '#f5f5f5';
     headerRow.appendChild(headerCell);
   });
 
@@ -46,8 +48,16 @@ function createAndInsertTable(data, completedCourses) {
       categoryCell.textContent = category;
       statusCell.textContent = courseStatus;
 
+
+      if (courseStatus === "수강 필요") {
+        statusCell.style.color = 'red';
+        statusCell.style.fontWeight = 'bold';
+      }
+  
+
       [idCell, nameCell, categoryCell, statusCell].forEach(cell => {
         cell.style.textAlign = 'center';
+        cell.style.border =  '1px solid #ddd';
         row.appendChild(cell);
       });
 
