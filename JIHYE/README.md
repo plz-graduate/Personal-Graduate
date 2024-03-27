@@ -6,7 +6,6 @@
 
 
 
-<img width="676" alt="image" src="https://github.com/plz-graduate/Personal-Graduate/assets/136612437/8a02dfb8-8137-4922-b32a-05824d93e97f">
 
 1. data/informationConvergence.json에 필수 과목과 학정번호 저장
 
