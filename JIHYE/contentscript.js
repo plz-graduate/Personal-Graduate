@@ -174,8 +174,9 @@ function updateGyoyangIsuTable() {
               const table = doc.querySelector('#appModule > div > table:nth-child(3)');
               const html = `<br><br> ` + table.outerHTML;
 
-              // 필요한 키만 선택하여 사용
-              
+            
+
+            //균형 교양 이수 여부  
             jsonData.aa63 = Number(jsonData.aa63);
             jsonData.aa65 = Number(jsonData.aa65);
             jsonData.aa66 = Number(jsonData.aa66);

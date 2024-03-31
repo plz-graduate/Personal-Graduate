@@ -104,32 +104,24 @@ function calculateRemainingCredits() {
   const creditInfoTable = document.querySelectorAll('.tablegw')[1];
   if (!creditInfoTable) {
     console.error("취득학점 정보 테이블을 찾을 수 없습니다.");
-    return { major: 0, nonMajor: 0 }; // 오류 시 기본 값 반환
+    return { major: 0, totalRequired: 0 }; // 오류 시 기본 값 반환
   }
 
   const rows = creditInfoTable.querySelectorAll('tbody tr')[0].cells; // 첫 번째 행의 셀들 선택
   const majorCredits = parseInt(rows[8].textContent, 10) || 0; // 전공 취득학점
-  const nonMajorCredits = parseInt(rows[9].textContent, 10) || 0; // 교양 취득학점
-  const otherCredits = parseInt(rows[10].textContent, 10) || 0; // 기타 취득학점
+  const totalAcquiredCredits = parseInt(rows[11].textContent, 10) || 0; // 총 취득학점
   
-  // 교양과 기타 학점을 합칩니다.
-  const combinedNonMajorCredits = nonMajorCredits + otherCredits;
-
-  // 졸업 요건 학점 (전공 60학점 이상, 전공 제외 73학점 이상 필요)
-  const graduationRequirements = { major: 60, nonMajor: 73 };
+  // 졸업 요건 학점
+  const graduationRequirements = { major: 60, totalRequired: 133 };
 
   // 남은 학점 계산
   const remainingCredits = {
-    major: Math.max(0, graduationRequirements.major - majorCredits),
-    nonMajor: Math.max(0, graduationRequirements.nonMajor - combinedNonMajorCredits)
+    major: Math.max(0, graduationRequirements.major - majorCredits), // 남은 전공 학점
+    totalRequired: Math.max(0, graduationRequirements.totalRequired - totalAcquiredCredits) // 졸업까지 필요한 총 학점
   };
 
   return remainingCredits; // 계산된 남은 학점 객체 반환
 }
-
-
-
-
 
 // 남은 학점 표시
 function displayRemainingCredits(data, completedCourses) {
@@ -141,32 +133,28 @@ function displayRemainingCredits(data, completedCourses) {
   remainingCreditsDiv.innerHTML = `
     <strong>남은 학점 정보</strong>
     <p>전공 필요 학점: ${remainingCreditsInfo.major}학점</p>
-    <p>교양 및 기타 필요 학점: ${remainingCreditsInfo.nonMajor}학점</p>
+    <p>총 필요 학점(전공 포함): ${remainingCreditsInfo.totalRequired}학점</p>
   `;
 
-  // 테이블이 삽입된 후 해당 요소를 .tablegw 클래스를 가진 첫 번째 요소 바로 다음 위치에 삽입
-  const table = document.querySelector('.tablegw + table'); // 수강 여부 테이블 선택
-  if (table) {
-    table.parentNode.insertBefore(remainingCreditsDiv, table.nextSibling);
+  // .tablegw 클래스를 가진 첫 번째 요소 바로 다음 위치에 남은 학점 정보 삽입
+  const insertionPoint = document.querySelector('.tablegw + table');
+  if (insertionPoint) {
+    insertionPoint.parentNode.insertBefore(remainingCreditsDiv, insertionPoint.nextSibling);
   } else {
     console.error('수강 여부 테이블을 찾을 수 없습니다.');
   }
 }
 
 
-// JSON 파일 로드 및 테이블 생성 실행
+// JSON 파일 로드 및 실행 로직
 fetch(chrome.runtime.getURL('data/informationConvergence.json'))
   .then(response => response.json())
   .then(data => {
     const completedCourses = extractCompletedCourses(); // 수강 완료 과목 정보 추출
     createAndInsertTable(data, completedCourses); // 테이블 생성 및 삽입
-
-    // 남은 학점 계산 및 표시 로직 실행
-    const remainingCredits = calculateRemainingCredits(); // 남은 학점 계산
-    displayRemainingCredits(data, completedCourses, remainingCredits); // 남은 학점 정보 표시
+    displayRemainingCredits(data, completedCourses); // 남은 학점 정보 표시
   })
   .catch(error => console.error('Error loading JSON:', error));
-
 
   // 교양 이수 현황 업데이트 함수
 function updateGyoyangIsuTable() {
@@ -189,6 +177,42 @@ function updateGyoyangIsuTable() {
               const table = doc.querySelector('#appModule > div > table:nth-child(3)');
               const html = `<br><br> ` + table.outerHTML;
 
+              // 필요한 키만 선택하여 사용
+              
+            jsonData.aa63 = Number(jsonData.aa63);
+            jsonData.aa65 = Number(jsonData.aa65);
+            jsonData.aa66 = Number(jsonData.aa66);
+            jsonData.aa67 = Number(jsonData.aa67);
+            jsonData.aa68 = Number(jsonData.aa68);
+            console.log(typeof(jsonData.aa63)); // 선택된 데이터를 출력
+
+            function checkValues() {
+              let count = 0;
+
+              if (jsonData.aa63 >= 3) {
+                  count++;
+              }
+              if (jsonData.aa65 >= 3) {
+                  count++;
+              }
+              if (jsonData.aa66 >= 3) {
+                  count++;
+              }
+              if (jsonData.aa67 >= 3) {
+                  count++;
+              }
+              if (jsonData.aa68 >= 3) {
+                  count++;
+              }
+
+              return count >= 3 ? "균형교양 3영역 수강 만족" : "균형교양 3영역 수강 부족";
+          }
+
+          // 결과 출력
+          console.log(checkValues());
+
+
+
               // JSON 데이터를 사용하여 HTML 요소 대체
               let updatedHtml = html
                   .replace('{{sugang.aa8128}}', jsonData.aa8128)
@@ -207,7 +231,7 @@ function updateGyoyangIsuTable() {
               // 삽입 위치 선정 및 HTML 삽입
               const insertLocation = document.querySelector('.tablegw');
               if (insertLocation && updatedHtml) {
-                  insertLocation.insertAdjacentHTML('afterend', updatedHtml);
+                  insertLocation.insertAdjacentHTML('afterend', `<br>${checkValues()}<br>${updatedHtml}`);
               }
           });
       })
