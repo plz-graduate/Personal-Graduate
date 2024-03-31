@@ -34,7 +34,7 @@ function createAndInsertTable(data, completedCourses) {
     data.requiredCourses[category].forEach(course => {
       const courseID = course.id;
       const courseStatus = completedCourses[courseID] ? 
-                           (completedCourses[courseID] === 'F' || completedCourses[courseID] === 'NP' ? "수강 필요" : "수강함") : 
+                           (completedCourses[courseID] === 'F' || completedCourses[courseID] === 'NP' ? "수강 필요" : "수강 완료") : 
                            "수강 필요";
 
       const row = document.createElement('tr');
@@ -51,6 +51,11 @@ function createAndInsertTable(data, completedCourses) {
 
       if (courseStatus === "수강 필요") {
         statusCell.style.color = 'red';
+        statusCell.style.fontWeight = 'bold';
+      }
+
+      if (courseStatus === "수강 완료") {
+        statusCell.style.color = 'blue';
         statusCell.style.fontWeight = 'bold';
       }
   
