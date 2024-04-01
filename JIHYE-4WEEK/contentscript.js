@@ -170,8 +170,8 @@ console.log("학번:", hakbun);
 
 
 
-// 원하는 학번 지정
-// const studentAdmissionYear = '21'; // 예시로 20학번을 선택했습니다. 필요에 따라 다른 학번으로 변경 가능
+
+// const studentAdmissionYear = '21'; // 예시로 21학번을 선택했습니다. 필요에 따라 다른 학번으로 변경 가능
 // JSON 파일 로드 및 테이블 생성 실행
 fetch(chrome.runtime.getURL('data/informationConvergence.json'))
   .then(response => response.json())
