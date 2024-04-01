@@ -143,8 +143,35 @@ function displayRemainingCredits(data, completedCourses, remainingCreditsInfo) {
   }
 }
 
+//본인학번 "수강/성적조회"에서 추출
+function extractValueFromFirstTable() {
+  const firstTable = document.querySelector('.tablegw');
+  if (!firstTable) {
+    console.error("학번 테이블을 찾을 수 없습니다.");
+    return null;
+  }
+
+  const firstRowCells = firstTable.querySelector('tbody tr:first-child').cells; // 첫 번째 행의 셀들 선택
+  if (!firstRowCells || firstRowCells.length < 4) {
+    console.error("테이블에서 값 추출에 필요한 셀을 찾을 수 없습니다.");
+    return null;
+  }
+
+  const targetValue = firstRowCells[2].textContent.trim(); // 네 번째 셀의 값 추출
+  return targetValue;
+}
+
+const extractedValue = extractValueFromFirstTable();
+console.log("추출된 값:", extractedValue);
+const hakbun = extractedValue.substring(4, 6); // 5번째부터 6번째 숫자 추출
+console.log("학번:", hakbun);
+
+
+
+
+
 // 원하는 학번 지정
-const studentAdmissionYear = '21'; // 예시로 20학번을 선택했습니다. 필요에 따라 다른 학번으로 변경 가능
+// const studentAdmissionYear = '21'; // 예시로 20학번을 선택했습니다. 필요에 따라 다른 학번으로 변경 가능
 // JSON 파일 로드 및 테이블 생성 실행
 fetch(chrome.runtime.getURL('data/informationConvergence.json'))
   .then(response => response.json())
@@ -152,10 +179,10 @@ fetch(chrome.runtime.getURL('data/informationConvergence.json'))
     const graduationRequirements = data.graduationRequirements;
 
     // 학번에 해당하는 정보 확인
-    const studentInfo = graduationRequirements[`${studentAdmissionYear}학번`];
+    const studentInfo = graduationRequirements[`${hakbun}학번`];
 
     if (!studentInfo) {
-      console.error(`학번 ${studentAdmissionYear}에 해당하는 정보를 찾을 수 없습니다.`);
+      console.error(`학번 ${hakbun}에 해당하는 정보를 찾을 수 없습니다.`);
       return;
     }
 
