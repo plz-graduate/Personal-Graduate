@@ -172,48 +172,22 @@ function updateGyoyangIsuTable() {
           })
           .then(response => response.json())
           .then(jsonData => {
+              html = `<br><br> `
+              // 교양 이수 현황 계산
+              let remainGyoyang = checkingGyoyangIsu(jsonData);
+              if(remainGyoyang){
+                  for (let key in remainGyoyang) {
+                      html += `${key}: ${remainGyoyang[key]}`;
+                      html += `<br>`;
+                  }
+              }
+
+              // 교양 이수 현황 table 불러오기
               const parser = new DOMParser();
               const doc = parser.parseFromString(htmlString, 'text/html');
               const table = doc.querySelector('#appModule > div > table:nth-child(3)');
-              const html = `<br><br> ` + table.outerHTML;
+              html += `<br> ` + table.outerHTML;
 
-              // 필요한 키만 선택하여 사용
-              
-            jsonData.aa63 = Number(jsonData.aa63);
-            jsonData.aa65 = Number(jsonData.aa65);
-            jsonData.aa66 = Number(jsonData.aa66);
-            jsonData.aa67 = Number(jsonData.aa67);
-            jsonData.aa68 = Number(jsonData.aa68);
-            console.log(typeof(jsonData.aa63)); // 선택된 데이터를 출력
-
-            function checkValues() {
-              let count = 0;
-
-              if (jsonData.aa63 >= 3) {
-                  count++;
-              }
-              if (jsonData.aa65 >= 3) {
-                  count++;
-              }
-              if (jsonData.aa66 >= 3) {
-                  count++;
-              }
-              if (jsonData.aa67 >= 3) {
-                  count++;
-              }
-              if (jsonData.aa68 >= 3) {
-                  count++;
-              }
-
-              return count >= 3 ? "균형교양 3영역 수강 만족" : "균형교양 3영역 수강 부족";
-          }
-
-          // 결과 출력
-          console.log(checkValues());
-
-
-
-              // JSON 데이터를 사용하여 HTML 요소 대체
               let updatedHtml = html
                   .replace('{{sugang.aa8128}}', jsonData.aa8128)
                   .replace('{{sugang.aa3362}}', jsonData.aa3362)
@@ -228,14 +202,59 @@ function updateGyoyangIsuTable() {
                   // 필요한 만큼 추가적인 데이터 필드 반복
                   .replace('{{totHakjum}}', Object.values(jsonData).reduce((a, b) => a + b, 0));
 
+
               // 삽입 위치 선정 및 HTML 삽입
               const insertLocation = document.querySelector('.tablegw');
               if (insertLocation && updatedHtml) {
-                  insertLocation.insertAdjacentHTML('afterend', `<br>${checkValues()}<br>${updatedHtml}`);
+                  insertLocation.insertAdjacentHTML('afterend', `<br>${updatedHtml}`);
               }
+
+
           });
       })
       .catch(error => console.error('Fetching error:', error));
+}
+
+// 필수 교양 및 균형 교양 확인 및 계산
+function checkingGyoyangIsu(jsonData){
+    let sugang = {};
+    // 필수 교양 체크
+    if (jsonData.aa8128 != 3){
+        sugang["광운인되기"] = jsonData.aa8128;
+    }
+    if (jsonData.aa3362 != 3){
+        sugang["대학영어"] = jsonData.aa3362;
+    }
+    if (jsonData.aa76 < 6 ){
+        sugang["정보영역"] = jsonData.aa76;
+    }
+    if (jsonData.aa64 != 3){
+        sugang["융합적사고와글쓰기영역"] = jsonData.aa64;
+    }
+
+    // 균형 교양 체크
+    let cnt = 0;
+    if (jsonData.aa63 >= 3){
+        cnt += 1;
+    }
+    if (jsonData.aa65 >= 3){
+        cnt += 1;
+    }
+    if (jsonData.aa66 >= 3){
+        cnt += 1;
+    }
+    if (jsonData.aa67 >= 3){
+        cnt += 1;
+    }
+    if(jsonData.aa68 >=3){
+        cnt+=1;
+    }
+
+    if(cnt < 3){
+        sugang["균형교양"] = cnt;
+    }
+
+    return sugang;
 }
 
 // 페이지 로드가 완료되면 교양 이수 현황 업데이트 함수 실행
